@@ -1,0 +1,121 @@
+create or replace schema DE.DE25 ;
+ 
+create or replace file format my_json_format
+type = json
+strip_outer_array = true;
+ 
+create or replace table match_1
+(json_data variant);
+ 
+create or replace stage stage_json
+file_format = my_json_format;
+ 
+ 
+select * from match_1 ;
+ 
+list @stage_json;
+ 
+copy into match_1
+from @stage_json/1384401.json
+file_format = my_json_format;
+ 
+ 
+select 
+json_data:meta:data_version::string as version,
+json_data:meta:created::string as created,
+json_data:meta:revision::string as revision,
+json_data:info:balls_per_over::string as B_P_O,
+json_data:info:city::string as city,
+a.value::string as date,
+json_data:info:event:name::string as event_namr,
+json_data:info:event:match_number::string as match_number,
+json_data:info:gender::string as gender,
+json_data:info:match_type::string as match_type,
+json_data:info:match_type_number::string asmatch_type_no,
+b.value:match_referees::string as match_referes,
+b.value:reserve_umpires::string as reserve_umpires,
+b.value:tv_umpires::string as tv_umpires,
+b.value:umpires::string as umpires,
+json_data:info:outcome:winner::string as winner,
+json_data:info:outcome:by:wickets::string as wicket,
+json_data:info:overs::string as overs,
+f.value::string as player_of_match,
+g.value::string as afgan_player,
+h.value::string as south_a_player,
+i.key::string as ragister_people,
+i.value::string as ragister_peoe,
+json_data:info:season::string as season,
+json_data:info:team_type::string as team_type,
+j.value::string as teams_name,
+json_data:innings:team::string as inning_team
+--k.value:over::string as which_over
+--l.value:batter::string as batter,
+--l.value:bowler::string as bowler,
+--l.value:non_striker::string as non_striker
+from match_1 ,
+LATERAL FLATTEN(input => json_data:info:dates) a,
+LATERAL FLATTEN(input => json_data:info:officials) b,
+LATERAL FLATTEN(input => json_data:info:player_of_match) f,
+LATERAL FLATTEN(input => json_data:info:players:Afghanistan) g,
+LATERAL FLATTEN(input => json_data:info:players['South Africa']) h,
+LATERAL FLATTEN(input => json_data:info:registry:people) AS i,
+LATERAL FLATTEN(input => json_data:info:teams) AS j
+--LATERAL FLATTEN(input => json_data:innings:overs) k,
+--LATERAL FLATTEN(input => json_data:innings:overs:deliveries) l
+;
+ 
+ 
+----------------------
+SELECT 
+    json_data:meta:data_version::string AS version,
+    json_data:meta:created::string AS created,
+    json_data:meta:revision::string AS revision,
+    json_data:info:balls_per_over::string AS B_P_O,
+    json_data:info:city::string AS city,
+    a.value::string AS date,
+    json_data:info:event:name::string AS event_name,
+    json_data:info:event:match_number::string AS match_number,
+    json_data:info:gender::string AS gender,
+    json_data:info:match_type::string AS match_type,
+    json_data:info:match_type_number::string AS match_type_no,
+    b.value:match_referees::string AS match_referees,
+    b.value:reserve_umpires::string AS reserve_umpires,
+    b.value:tv_umpires::string AS tv_umpires,
+    b.value:umpires::string AS umpires,
+    json_data:info:outcome:winner::string AS winner,
+    json_data:info:outcome:by:wickets::string AS wickets,
+    json_data:info:overs::string AS overs,
+    f.value::string AS player_of_match,
+    g.value::string AS afgan_player,
+    h.value::string AS south_a_player,
+    i.key::string AS register_people,
+    i.value::string AS register_peoe,
+    json_data:info:season::string AS season,
+    json_data:info:team_type::string AS team_type,
+    j.value::string AS teams_name,
+    k.value:over::string AS which_over,
+    l.value:batter::string AS batter,
+    l.value:bowler::string AS bowler,
+    l.value:non_striker::string AS non_striker
+ 
+FROM match_1
+ 
+-- Flattening arrays/lists
+, LATERAL FLATTEN(input => json_data:info:dates) a
+, LATERAL FLATTEN(input => json_data:info:officials) b
+, LATERAL FLATTEN(input => json_data:info:player_of_match) f
+, LATERAL FLATTEN(input => json_data:info:players:Afghanistan) g
+, LATERAL FLATTEN(input => json_data:info:players['South Africa']) h
+, LATERAL FLATTEN(input => json_data:info:registry:people) i
+, LATERAL FLATTEN(input => json_data:info:teams) j
+, LATERAL FLATTEN(input => json_data:innings) k
+, LATERAL FLATTEN(input => k.value:overs) m
+, LATERAL FLATTEN(input => m.value:deliveries) l
+;
+ 
+SELECT
+ 
+    --i.key::string AS register_people,
+    i.value::string AS register_peoe
+    from match_1  
+, LATERAL FLATTEN(input => json_data:info:registry:people) i ;
