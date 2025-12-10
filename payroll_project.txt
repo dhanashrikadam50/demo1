@@ -1,0 +1,224 @@
+create database hr_payroll
+
+CREATE TABLE Emp1(
+  Employee_Id int,
+  First_Name VARCHAR(25),
+  Last_Name VARCHAR(25),
+  Hire_Date DATE,
+  City VARCHAR(25),
+  State VARCHAR(25),
+  CONSTRAINT PK_EMPLOYEE PRIMARY KEY (Employee_Id));
+
+  bulk insert Emp1
+from "C:\Users\dhana\Downloads\EMPLOYEE.CSV"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+ select * from Emp1
+
+ CREATE TABLE Department1(
+  Department_Id int,
+  Department_Name VARCHAR(30),
+  CONSTRAINT DEPARTMENT_PK PRIMARY KEY (Department_Id)
+  );
+
+bulk insert Department1
+from "D:\Department1.csv1"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+select * from Department1
+
+CREATE TABLE Salary1(
+  Salary_Id int,
+  Gross_Salary int,
+  Hourly_Pay int,
+  State_Tax int,
+  Federal_Tax int,
+  Account_Id int,
+  CONSTRAINT SALARY_PK PRIMARY KEY (Salary_Id),
+  FOREIGN KEY (Account_Id)
+        REFERENCES ACCOUNTDETAILS(Account_Id)
+  );
+
+
+  bulk insert Salary1
+from "D:\salary1.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+select * from Salary1
+  CREATE TABLE DepartmentProject(
+  Department_Id int,
+  Project_Id int,
+  CONSTRAINT DEPTPROJECT_PK PRIMARY KEY (Department_Id,Project_Id),
+  FOREIGN KEY (Department_Id)
+        REFERENCES Department1(Department_Id),
+  FOREIGN KEY (Project_Id)
+        REFERENCES Project1(Project_Id)
+  );
+
+  bulk insert DepartmentProject
+from "D:\department_project.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+select * from DepartmentProject
+
+ CREATE TABLE Project1(
+  Project_Id int,
+  Project_Name VARCHAR(50),
+  Project_Description VARCHAR(50),
+  CONSTRAINT Project_PK PRIMARY KEY (Project_Id)
+  );
+
+bulk insert Project1
+from "D:\project1.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+
+  select * from Project1
+
+  CREATE TABLE AccountDetails(
+  Account_Id int,
+  Bank_Name VARCHAR(50),
+  Account_Number VARCHAR(50),
+  Employee_Id int,
+  CONSTRAINT Account_PK PRIMARY KEY (Account_Id),
+  FOREIGN KEY (Employee_Id)
+        REFERENCES Emp1(Employee_Id)
+  );
+
+  bulk insert AccountDetails
+from "D:\accountdetails.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+select * from AccountDetails
+
+  CREATE TABLE Education(
+  Education_Id int,
+  Employee_Id int,
+  Degree VARCHAR(30),
+  Graduation_Year int,
+  CONSTRAINT Location_PK PRIMARY KEY (Education_Id),
+  FOREIGN KEY (Employee_Id)
+        REFERENCES Emp1(Employee_Id)
+  );
+
+  bulk insert Education
+from "D:\education.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+select * from Education
+
+
+  CREATE TABLE Leave(
+  Leave_Id int,
+  Employee_Id int,
+  Leave_date DATE,
+  CONSTRAINT Leave_PK PRIMARY KEY (Leave_Id),
+  FOREIGN KEY (Employee_Id)
+        REFERENCES Emp1(Employee_Id)
+  );
+
+  bulk insert Leave
+from "D:\leave.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+  select * from Leave
+ ----------------------------------------------------
+ EmployeeAttendance Bridge
+ ----------------------------------------------------
+  
+  CREATE TABLE Employee_Attendance(
+  Employee_Id int,
+  Attendance_Id int,
+  CONSTRAINT DEPARTMENTPROJECT_PK PRIMARY KEY (Employee_Id,Attendance_Id),
+  FOREIGN KEY (Employee_Id)
+        REFERENCES Emp1(Employee_Id),
+  FOREIGN KEY (Attendance_Id)
+        REFERENCES Attendance(Attendance_Id)
+  );
+  bulk insert Employee_Attendance
+from "D:\employee_attendance.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+  select * from Employee_Attendance
+  ----------------------------------------------------
+  Attendance
+  ----------------------------------------------------
+   
+  CREATE TABLE Attendance(
+  Attendance_Id int,
+  Hours_Worked int,
+  CONSTRAINT Attendance_PK PRIMARY KEY (Attendance_Id)
+  );
+
+bulk insert Attendance
+from "D:\attendance.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+  select * from Attendance
+  ----------------------------------------------------
+  WorkLocation
+  ----------------------------------------------------
+  CREATE TABLE Work_Location(
+  Location_Id int,
+  Location VARCHAR(25),
+  Number_Of_Employees int,
+  City VARCHAR(25),
+  State VARCHAR(25),
+  CONSTRAINT Loc_PK PRIMARY KEY (Location_Id)
+  );
+  
+  bulk insert Work_Location
+from "D:\work_location.csv"
+with(
+firstrow= 2,
+fieldterminator = ',',
+rowterminator = '\n',
+tablock
+);
+
+select * from Work_Location
